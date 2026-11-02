@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Ona — an assistive app for blind and low-vision users. Describes surroundings, reads text, checks hazards, and more." />
+  <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f0f4f4"  media="(prefers-color-scheme: light)" />
+  <title>Ona — See the World Your Way</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div id="wizard-overlay" role="dialog" aria-modal="true" aria-labelledby="wizard-title" aria-describedby="wizard-desc">
+  <div id="wizard-box">
+    <div class="wizard-icon" aria-hidden="true">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="12" cy="12" rx="9" ry="5.5"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      </svg>
+    </div>
+
+    <h1 id="wizard-title" class="wizard-title">Welcome to Ona</h1>
+    <p id="wizard-desc" class="wizard-desc">I will guide you by voice, step by step.</p>
+
+    <div id="wizard-speaking" aria-live="polite" aria-atomic="true" class="wizard-speaking"></div>
+
+    <ol id="wizard-menu" class="wizard-menu" aria-label="Available actions">
+      <li data-cmd="describe">Describe my surroundings</li>
+      <li data-cmd="read">Read text or a sign</li>
+      <li data-cmd="hazards">Check hazards ahead</li>
+      <li data-cmd="directions">Get walking directions</li>
+      <li data-cmd="connect">Connect with people</li>
+      <li data-cmd="sos">Send an SOS alert</li>
+      <li data-cmd="devices">Manage devices</li>
+      <li data-cmd="settings">Settings</li>
+    </ol>
+
+    <div class="wizard-actions">
+      <button id="btn-wizard-listen" class="wizard-listen-btn" aria-label="Tap to speak your choice">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        Tap to speak your choice
+      </button>
+      <button id="btn-wizard-skip" class="wizard-skip-btn" aria-label="Skip voice guide and enter app">
+        Skip &amp; enter app
+      </button>
+    </div>
+
+    <div id="wizard-heard" aria-live="assertive" class="wizard-heard"></div>
+  </div>
+</div>
+
+<button id="btn-global-help" aria-label="Help — repeat voice menu" title="Repeat voice menu">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
+  </svg>
+</button>
+
+<div id="voice-cmd-bar" aria-live="assertive" aria-atomic="true" role="status"></div>
+
+<header id="top-bar" role="banner">
+  <span class="app-logo" aria-label="Ona home">
+    <span class="logo-mark" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <ellipse cx="12" cy="12" rx="9" ry="5.5"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      </svg>
+    </span>
+    <span class="logo-name">ona</span>
+  </span>
+  <div class="topbar-right">
+  </div>
+</header>
+
+<nav id="sidebar" aria-label="Main navigation">
+  <span class="sidebar-logo" aria-label="Ona">
+    <span class="logo-mark" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <ellipse cx="12" cy="12" rx="9" ry="5.5"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      </svg>
+    </span>
+    <span class="logo-name">ona</span>
+  </span>
+
+  <div class="sidebar-nav" role="tablist" aria-label="App sections">
+    <button class="sidebar-btn" role="tab" aria-selected="true"  data-screen="home"    id="s-tab-home"    aria-controls="screen-home">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Home
+    </button>
+    <button class="sidebar-btn" role="tab" aria-selected="false" data-screen="connect" id="s-tab-connect" aria-controls="screen-connect">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Connect
+    </button>
+    <button class="sidebar-btn sidebar-sos" role="tab" aria-selected="false" data-screen="sos" id="s-tab-sos" aria-controls="screen-sos">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      SOS
+    </button>
+    <button class="sidebar-btn" role="tab" aria-selected="false" data-screen="places" id="s-tab-places" aria-controls="screen-places">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Places
+    </button>
+    <button class="sidebar-btn" role="tab" aria-selected="false" data-screen="devices" id="s-tab-devices" aria-controls="screen-devices">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg>
+      Devices
+    </button>
+    <button class="sidebar-btn" role="tab" aria-selected="false" data-screen="settings" id="s-tab-settings" aria-controls="screen-settings">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+      Settings
+    </button>
+  </div>
+
+  <div class="sidebar-footer muted">
+    Version 1.0 &mdash; Beta
+  </div>
+</nav>
+
+<main id="main-content" role="main">
+
+  <section id="screen-home" class="screen active"
+           role="tabpanel" aria-labelledby="tab-home s-tab-home" tabindex="0">
+
+    <div id="viewfinder-wrap" aria-label="Camera viewfinder">
+      <video id="camera-video" autoplay playsinline muted
+             aria-label="Live camera feed" aria-hidden="true"></video>
+
+      <svg id="viewfinder-svg" aria-hidden="true" focusable="false">
+        <defs>
+          <style>
+            .vf-corner { stroke: #00c2a8; stroke-width: 3; fill: none;
+                         stroke-linecap: round; }
+          </style>
+        </defs>
+        <polyline class="vf-corner" points="24,48 24,24 48,24"/>
+        <polyline class="vf-corner" points="calc(100% - 48),24 calc(100% - 24),24 calc(100% - 24),48"
+                  style="transform-box:fill-box"/>
+      </svg>
+
+      <div id="camera-fallback" aria-live="polite" role="status">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        <p>Camera not available.<br>Grant camera permission or use a supported browser.</p>
+      </div>
+
+      <button id="btn-switch-cam" aria-label="Switch camera (front / back)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
+        </svg>
+      </button>
+    </div>
+
+    <div id="ona-caption-box" aria-label="Ona's description">
+      <span class="caption-label" aria-hidden="true">Ona says</span>
+      <div class="loading-dots" id="caption-loading" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <output id="ona-says" aria-live="polite" aria-atomic="true">
+        Tap an action below to get started.
+      </output>
+    </div>
+
+    <div id="action-grid" role="group" aria-label="Ona actions">
+      <button class="action-btn" id="btn-describe" data-action="describe">
+        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+        Describe my surroundings
+      </button>
+
+      <button class="action-btn" id="btn-read" data-action="read">
+        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Read text or sign
+      </button>
+
+      <button class="action-btn" id="btn-hazards" data-action="hazards">
+        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Check hazards ahead
+      </button>
+
+      <button class="action-btn" id="btn-media" data-action="media">
+        <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+        </svg>
+        Describe photo or video
+      </button>
+    </div>
+  </section>
+
+  <section id="screen-connect" class="screen"
+           role="tabpanel" aria-labelledby="tab-connect s-tab-connect" tabindex="0"
+           aria-hidden="true">
+    <div class="screen-inner">
+
+      <div id="connect-list">
+        <h1 class="screen-title">Connect</h1>
+
+        <button class="connect-card" data-subview="my-circle" aria-expanded="false">
+          <span class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>
+          My Circle
+          <svg class="card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <button class="connect-card" data-subview="community" aria-expanded="false">
+          <span class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </span>
+          Community
+          <svg class="card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <button class="connect-card" data-subview="peer-support" aria-expanded="false">
+          <span class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </span>
+          Peer Support
+          <svg class="card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+
+        <button class="connect-card" data-subview="professional" aria-expanded="false">
+          <span class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </span>
+          Professional Support
+          <svg class="card-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <div id="sub-my-circle" class="sub-view" aria-label="My Circle sub-section">
+        <button class="back-btn" data-back="connect" aria-label="Back to Connect">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <h2 class="sub-view-title">My Circle</h2>
+        <div class="sub-view-body">
+          <p>Your trusted personal contacts — family members, friends, or carers who have agreed to be part of your support network. They can receive location updates and SOS alerts.</p>
+          <br>
+          <p class="muted">[Contacts will appear here once connected to your account.]</p>
+        </div>
+      </div>
+
+      <div id="sub-community" class="sub-view" aria-label="Community sub-section">
+        <button class="back-btn" data-back="connect" aria-label="Back to Connect">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <h2 class="sub-view-title">Community</h2>
+        <div class="sub-view-body">
+          <p>Join local and global communities of Ona users. Share tips, accessible places, and encouragement with others who understand your journey.</p>
+          <br>
+          <p class="muted">[Community feed will appear here.]</p>
+        </div>
+      </div>
+
+      <div id="sub-peer-support" class="sub-view" aria-label="Peer Support sub-section">
+        <button class="back-btn" data-back="connect" aria-label="Back to Connect">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <h2 class="sub-view-title">Peer Support</h2>
+        <div class="sub-view-body">
+          <p>Connect with trained peer supporters who have lived experience of vision impairment. Chat, call, or schedule a session at any time.</p>
+          <br>
+          <p class="muted">[Peer supporter list will appear here.]</p>
+        </div>
+      </div>
+
+      <div id="sub-professional" class="sub-view" aria-label="Professional Support sub-section">
+        <button class="back-btn" data-back="connect" aria-label="Back to Connect">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </button>
+        <h2 class="sub-view-title">Professional Support</h2>
+        <div class="sub-view-body">
+          <p>Find certified orientation and mobility specialists, low-vision therapists, and counsellors near you. Book appointments directly through Ona.</p>
+          <br>
+          <p class="muted">[Professional directory will appear here.]</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="screen-sos" class="screen"
+           role="tabpanel" aria-labelledby="tab-sos s-tab-sos" tabindex="0"
+           aria-hidden="true">
+    <div class="screen-inner">
+      <h1 class="screen-title sr-only">SOS — Emergency</h1>
+
+      <div class="sos-btn-wrap">
+        <button id="btn-sos" aria-label="Send SOS alert to emergency contacts">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          SOS
+        </button>
+        <p class="sos-hint">Hold anywhere on screen for 0.6 seconds to send an alert instantly.</p>
+      </div>
+
+      <div class="contact-section">
+        <label for="sos-contact">Emergency contact</label>
+        <div class="input-row">
+          <input type="tel" id="sos-contact" class="text-input"
+                 placeholder="Name or phone number"
+                 aria-describedby="sos-contact-hint"
+                 autocomplete="tel" />
+          <button id="btn-sos-mic" class="icon-btn" aria-label="Speak emergency contact name or number" aria-pressed="false">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+        </div>
+        <p id="sos-contact-hint" class="muted" style="margin-top:8px">Saved to your device. Not shared with Ona servers.</p>
+      </div>
+    </div>
+
+    <div id="sos-alert" role="alert" aria-live="assertive" aria-atomic="true">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      SOS Sent
+      <span style="font-size:18px;font-weight:400">Alert sent to your emergency contact.</span>
+      <button class="sos-dismiss" id="btn-sos-dismiss" aria-label="Dismiss SOS confirmation">Dismiss</button>
+    </div>
+  </section>
+
+  <section id="screen-places" class="screen"
+           role="tabpanel" aria-labelledby="tab-places s-tab-places" tabindex="0"
+           aria-hidden="true">
+    <div class="screen-inner">
+      <h1 class="screen-title">Places</h1>
+
+      <form class="places-form" id="places-form" novalidate>
+        <div>
+          <label for="destination-input">Where are you going?</label>
+          <div class="input-row">
+            <input type="text" id="destination-input" class="text-input"
+                   placeholder="Enter destination"
+                   aria-required="true"
+                   autocomplete="off" />
+            <button type="button" id="btn-dest-mic" class="icon-btn" aria-label="Speak your destination" aria-pressed="false">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="primary-btn" id="btn-get-directions">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Get walking directions
+        </button>
+      </form>
+
+      <div id="directions-panel" aria-live="polite" aria-label="Walking directions">
+        <h2 style="font-size:18px;font-weight:700;margin-bottom:16px" id="directions-heading">
+          Walking to <span id="dest-name"></span>
+        </h2>
+        <ol class="step-list" id="step-list" aria-label="Direction steps"></ol>
+        <button id="btn-next-step" aria-label="Read next step aloud">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Next step
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-devices" class="screen"
+           role="tabpanel" aria-labelledby="tab-devices s-tab-devices" tabindex="0"
+           aria-hidden="true">
+    <div class="screen-inner">
+      <h1 class="screen-title">Devices</h1>
+
+      <div class="device-card" id="device-glasses" data-device="glasses">
+        <div class="device-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M2 8h1l2 8h2l1-5h4l1 5h2l2-8h1"/>
+            <circle cx="7" cy="16" r="2"/><circle cx="17" cy="16" r="2"/>
+          </svg>
+        </div>
+        <div class="device-info">
+          <div class="device-name">Smart Glasses</div>
+          <div class="device-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Disconnected</span>
+          </div>
+        </div>
+        <button class="toggle-btn" aria-label="Connect Smart Glasses" aria-pressed="false">Connect</button>
+      </div>
+
+      <div class="device-card" id="device-cane" data-device="cane">
+        <div class="device-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="2" x2="12" y2="22"/>
+            <path d="M8 6 Q12 2 16 6"/>
+            <path d="M10 20 Q12 22 14 20"/>
+          </svg>
+        </div>
+        <div class="device-info">
+          <div class="device-name">Smart Cane</div>
+          <div class="device-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Disconnected</span>
+          </div>
+        </div>
+        <button class="toggle-btn" aria-label="Connect Smart Cane" aria-pressed="false">Connect</button>
+      </div>
+
+      <div class="device-card" id="device-band" data-device="band">
+        <div class="device-icon-wrap">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="5" y="8" width="14" height="8" rx="3"/>
+            <path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            <path d="M8 16v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/>
+          </svg>
+        </div>
+        <div class="device-info">
+          <div class="device-name">Wrist Band</div>
+          <div class="device-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span class="status-text">Disconnected</span>
+          </div>
+        </div>
+        <button class="toggle-btn" aria-label="Connect Wrist Band" aria-pressed="false">Connect</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-settings" class="screen"
+           role="tabpanel" aria-labelledby="tab-settings s-tab-settings" tabindex="0"
+           aria-hidden="true">
+    <div class="screen-inner">
+      <h1 class="screen-title">Settings</h1>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Assistance Mode</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Mode</div>
+            <div class="settings-sub">How much guidance Ona provides</div>
+          </div>
+          <fieldset class="radio-group" style="border:none">
+            <legend class="sr-only">Assistance mode</legend>
+            <input type="radio" name="assist-mode" id="mode-independent" value="independent" checked />
+            <label for="mode-independent">Independent</label>
+            <input type="radio" name="assist-mode" id="mode-guided" value="guided" />
+            <label for="mode-guided">Guided</label>
+            <input type="radio" name="assist-mode" id="mode-support" value="support" />
+            <label for="mode-support">Support</label>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Speech &amp; Audio</div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Speech speed</div>
+            <div class="settings-sub">How fast Ona speaks</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="range" id="speech-speed" min="0.5" max="2" step="0.1" value="1"
+                   aria-label="Speech speed"
+                   aria-valuemin="0.5" aria-valuemax="2" aria-valuenow="1" />
+            <span class="speed-val" id="speed-display" aria-live="polite">1.0×</span>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">AI Voice</div>
+            <div class="settings-sub">Voice used for speech output</div>
+          </div>
+          <div class="voice-row">
+            <select id="voice-select" aria-label="Select AI voice"></select>
+            <button class="sm-btn" id="btn-test-voice" aria-label="Test selected voice">Test</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Notifications</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Frequency</div>
+            <div class="settings-sub">How often Ona sends alerts</div>
+          </div>
+          <select id="notif-freq" aria-label="Notification frequency">
+            <option value="low">Low</option>
+            <option value="normal" selected>Normal</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Language</div>
+        <div class="settings-row">
+          <div class="settings-label">Display &amp; speech language</div>
+          <select id="lang-select" aria-label="Select language">
+            <option value="en" selected>English</option>
+            <option value="sw">Kiswahili</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Appearance</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Theme</div>
+            <div class="settings-sub">Colour scheme</div>
+          </div>
+          <fieldset class="radio-group" style="border:none">
+            <legend class="sr-only">Theme</legend>
+            <input type="radio" name="theme" id="theme-auto"  value=""      checked />
+            <label for="theme-auto">Auto</label>
+            <input type="radio" name="theme" id="theme-light" value="light" />
+            <label for="theme-light">Light</label>
+            <input type="radio" name="theme" id="theme-dark"  value="dark"  />
+            <label for="theme-dark">Dark</label>
+          </fieldset>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<nav id="tab-bar" role="tablist" aria-label="App sections">
+  <button class="tab-btn" role="tab" aria-selected="true"  data-screen="home"     id="tab-home"     aria-controls="screen-home">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+    Home
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-screen="connect"  id="tab-connect"  aria-controls="screen-connect">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Connect
+  </button>
+  <button class="tab-btn tab-sos" role="tab" aria-selected="false" data-screen="sos" id="tab-sos" aria-controls="screen-sos">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    SOS
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-screen="places"   id="tab-places"   aria-controls="screen-places">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    Places
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-screen="devices"  id="tab-devices"  aria-controls="screen-devices">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg>
+    Devices
+  </button>
+  <button class="tab-btn" role="tab" aria-selected="false" data-screen="settings" id="tab-settings" aria-controls="screen-settings">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+    Settings
+  </button>
+</nav>
+
+<script src="app.js"></script>
+</body>
+</html>
